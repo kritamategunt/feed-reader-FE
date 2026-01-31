@@ -1,6 +1,7 @@
 import { Button, Spin } from 'antd';
 import { FeedItem } from './FeedItem';
 import { useFeed } from '../hooks/useFeed';
+import { SkeletonFeedList } from './SkeletonLoading/SkeleFeedList';
 
 export const FeedList = () => {
   const {
@@ -10,10 +11,11 @@ export const FeedList = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+
   } = useFeed();
 
   if (isLoading) {
-    return <Spin />;
+    return <SkeletonFeedList />;
   }
 
   if (isError) {

@@ -1,9 +1,11 @@
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import { mockFeed, PAGE_SIZE } from "./mockFeedData";
 
 export const handlers = [
-  // Handle GET requests to /api/feed
-  http.get("/api/feed", ({ request }) => {
+  http.get("/api/feed", async ({ request }) => {
+    // simple timer (fake network delay)
+    await delay(800); // 800ms
+
     const url = new URL(request.url);
 
     // Read "page" from query string, default to page 1

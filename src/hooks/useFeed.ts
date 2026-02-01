@@ -1,27 +1,41 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 export type FeedResponse = {
-  [x: string]: any;
   data: any[];
   nextPage: number | null;
 };
 
-const fetchFeed = async ({ pageParam = 1 }) => {
+const fetchFeed = async ({
+  pageParam = 1,
+}: {
+  pageParam?: number;
+}): Promise<FeedResponse> => {
   const response = await axios.get<FeedResponse>("/api/feed", {
     params: { page: pageParam },
   });
-  console.log("response", response.data);
   return response.data;
 };
 
-const fetchFeedMockApi = () => {
-  return useInfiniteQuery({
+export function useFeed() {
+  const queryClient = useQueryClient();
+
+  const query = useInfiniteQuery({
     queryKey: ["feed"],
-    queryFn: ({ pageParam = 1 }) => fetchFeed({ pageParam }),
+    queryFn: ({ pageParam }) => fetchFeed({ pageParam }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) => lastPage.nextPage,
   });
-};
 
-export { fetchFeedMockApi as useFeed };
+  // ✅ attach refresh to hook result
+  const refresh = async () => {
+    await queryClient.resetQueries({
+      queryKey: ["feed"],
+    });
+  };
+
+  return {
+    ...query,
+    refresh,
+  };
+}

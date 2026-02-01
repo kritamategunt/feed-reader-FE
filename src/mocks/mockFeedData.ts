@@ -4,7 +4,9 @@ export type FeedPost = {
   content: string;
   imageUrl?: string;
   likes: number;
+  liked?: boolean; // UI-only state
 };
+
 
 export const PAGE_SIZE = 5;
 

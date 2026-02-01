@@ -1,7 +1,9 @@
-import { Button, Spin } from 'antd';
 import { FeedItem } from './FeedItem';
 import { useFeed } from '../hooks/useFeed';
 import { SkeletonFeedList } from './SkeletonLoading/SkeleFeedList';
+import { useEffect, useRef } from 'react';
+import { SkeletonFeedCard } from './SkeletonLoading/SkeletonList';
+import { PullToRefresh } from './pullToRefresh';
 
 export const FeedList = () => {
   const {
@@ -11,8 +13,24 @@ export const FeedList = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-
+    refresh
   } = useFeed();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  // Observe bottom sentinel
+  useEffect(() => {
+    if (!hasNextPage || !loadMoreRef.current) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        fetchNextPage();
+      }
+    });
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, fetchNextPage]);
 
   if (isLoading) {
     return <SkeletonFeedList />;
@@ -25,25 +43,32 @@ export const FeedList = () => {
   const pages = data?.pages ?? [];
 
   return (
-    <div className="space-y-4">
-      {pages.map((page, pageIndex) => (
-        <div key={pageIndex}>
-          {(page.data ?? []).map(post => (
-            <FeedItem key={post.id} post={post} />
-          ))}
-        </div>
-      ))}
+    <PullToRefresh onRefresh={refresh}>
 
-      {hasNextPage && (
-        <div className="flex justify-center">
-          <Button
-            loading={isFetchingNextPage}
-            onClick={() => fetchNextPage()}
-          >
-            Load more
-          </Button>
-        </div>
-      )}
-    </div>
+
+      <div className="space-y-4">
+        {/* Render posts */}
+        {pages.map((page) =>
+          page.data.map((post) => (
+            <FeedItem key={post.id} post={post} />
+          ))
+        )}
+
+        {/* Load more indicator */}
+        {isFetchingNextPage && (
+          <SkeletonFeedCard />
+        )}
+
+        {/* End message */}
+        {!hasNextPage && (
+          <p className="text-center text-gray-400">
+            You’ve reached the end 👋
+          </p>
+        )}
+
+        {/* Scroll sentinel */}
+        <div ref={loadMoreRef} className="h-4" />
+      </div>
+    </PullToRefresh>
   );
 };

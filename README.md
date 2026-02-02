@@ -1,73 +1,186 @@
-# React + TypeScript + Vite
+# 📱 Feed Reader Web App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **Feed Reader** web application that mimics a modern social media feed (like Facebook / Instagram / X).
 
-Currently, two official plugins are available:
+Built with **React + TypeScript**, styled using **Tailwind CSS + Ant Design**, powered by **TanStack Query** for data fetching, and backed by a **robust Mock API using MSW**.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Social-media–style feed (text + images)
+* Infinite scrolling
+* Pull-to-refresh (mobile + desktop)
+* Like button interaction
+* Skeleton loading UI
+* Retry / refetch UX
+* Robust mock API with MSW
+* Simulated network latency
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Category        | Tech                            |
+| --------------- | ------------------------------- |
+| Framework       | React 19 + TypeScript           |
+| Styling         | Tailwind CSS + Ant Design       |
+| Data Fetching   | TanStack Query (Infinite Query) |
+| Mock API        | MSW (Mock Service Worker)       |
+| HTTP Client     | Axios                           |
+| Build Tool      | Vite                            |
+| Package Manager | pnpm                            |
+| Node            | v22                             |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📂 Project Structure
+
+```
+feed-reader/
+├─ src/
+│  ├─ components/
+│  │  ├─ FeedList.tsx
+│  │  ├─ FeedItem.tsx
+│  │  ├─ PullToRefresh.tsx
+│  │  └─ SkeletonLoading/
+│  ├─ hooks/
+│  │  └─ useFeed.ts
+│  ├─ mocks/
+│  │  ├─ handlers.ts
+│  │  ├─ browser.ts
+│  │  └─ mockFeedData.ts
+│  ├─ App.tsx
+│  ├─ main.tsx
+│  └─ index.css
+└─ README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Data Source Strategy
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+This project uses Robust Mock API**.
+
+### Why Mock API?
+
+* Stable during review & demo
+* No external API downtime
+* Full control over data shape
+* Easy to simulate latency & errors
+
+### Mock API details
+
+* Implemented using **MSW (Mock Service Worker)**
+* Intercepts `/api/feed` requests
+* Supports pagination
+* Adds artificial delay to simulate real network
+
+Example response:
+
+```json
+{
+  "data": [ ...posts ],
+  "nextPage": 2
+}
 ```
+
+---
+
+## Infinite Scroll Implementation
+
+* Uses `useInfiniteQuery`
+* Loads next page when user scrolls near bottom
+* Preserves previously loaded pages
+
+Key TanStack config:
+
+```ts
+useInfiniteQuery({
+  queryKey: ['feed'],
+  queryFn,
+  initialPageParam: 1,
+  getNextPageParam: (lastPage) => lastPage.nextPage,
+})
+```
+
+---
+
+## Pull-to-Refresh UX
+
+* Works on **mobile (touch)** and **desktop (mouse / trackpad)**
+* Only triggers when scroll position is at top
+* Resets cached pages and reloads fresh feed
+
+Implemented by:
+
+* Tracking drag distance
+* Triggering `queryClient.resetQueries(['feed'])`
+
+---
+
+## Loading & Error States
+
+### Loading
+
+* Skeleton UI shown during initial load
+* Spinner shown during pull-to-refresh
+
+### Error
+
+* Friendly error message
+* Retry button calls refetch
+
+---
+
+## Design Decisions
+
+* **TanStack Query** for predictable cache & refetch behavior
+* **MSW** instead of real backend for reliability
+* **Axios** for clean request handling
+* **Tailwind** for layout & spacing
+* **Ant Design** for polished UI components
+
+---
+
+## Getting Started
+
+### 1. Install dependencies
+
+```bash
+pnpm install
+```
+
+### 2. Start development server
+
+```bash
+pnpm dev
+```
+
+### 3. Open browser
+
+```
+http://localhost:5173
+```
+
+MSW will automatically start in development mode.
+
+---
+
+## 🧪 Testing the Mock API
+
+```bash
+curl "http://localhost:5173/api/feed?page=1"
+```
+
+---
+
+
+## Author
+
+**Kritamtate Kamheang**
+
+
+---
+
+✨ Thanks for reviewing this project!

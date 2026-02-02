@@ -19,130 +19,6 @@ Built with **React + TypeScript**, styled using **Tailwind CSS + Ant Design**, p
 
 ---
 
-## Tech Stack
-
-| Category        | Tech                            |
-| --------------- | ------------------------------- |
-| Framework       | React 19 + TypeScript           |
-| Styling         | Tailwind CSS + Ant Design       |
-| Data Fetching   | TanStack Query (Infinite Query) |
-| Mock API        | MSW (Mock Service Worker)       |
-| HTTP Client     | Axios                           |
-| Build Tool      | Vite                            |
-| Package Manager | pnpm                            |
-| Node            | v22                             |
-
----
-
-## 📂 Project Structure
-
-```
-feed-reader/
-├─ src/
-│  ├─ components/
-│  │  ├─ FeedList.tsx
-│  │  ├─ FeedItem.tsx
-│  │  ├─ PullToRefresh.tsx
-│  │  └─ SkeletonLoading/
-│  ├─ hooks/
-│  │  └─ useFeed.ts
-│  ├─ mocks/
-│  │  ├─ handlers.ts
-│  │  ├─ browser.ts
-│  │  └─ mockFeedData.ts
-│  ├─ App.tsx
-│  ├─ main.tsx
-│  └─ index.css
-└─ README.md
-```
-
----
-
-## Data Source Strategy
-
-This project uses Robust Mock API**.
-
-### Why Mock API?
-
-* Stable during review & demo
-* No external API downtime
-* Full control over data shape
-* Easy to simulate latency & errors
-
-### Mock API details
-
-* Implemented using **MSW (Mock Service Worker)**
-* Intercepts `/api/feed` requests
-* Supports pagination
-* Adds artificial delay to simulate real network
-
-Example response:
-
-```json
-{
-  "data": [ ...posts ],
-  "nextPage": 2
-}
-```
-
----
-
-## Infinite Scroll Implementation
-
-* Uses `useInfiniteQuery`
-* Loads next page when user scrolls near bottom
-* Preserves previously loaded pages
-
-Key TanStack config:
-
-```ts
-useInfiniteQuery({
-  queryKey: ['feed'],
-  queryFn,
-  initialPageParam: 1,
-  getNextPageParam: (lastPage) => lastPage.nextPage,
-})
-```
-
----
-
-## Pull-to-Refresh UX
-
-* Works on **mobile (touch)** and **desktop (mouse / trackpad)**
-* Only triggers when scroll position is at top
-* Resets cached pages and reloads fresh feed
-
-Implemented by:
-
-* Tracking drag distance
-* Triggering `queryClient.resetQueries(['feed'])`
-
----
-
-## Loading & Error States
-
-### Loading
-
-* Skeleton UI shown during initial load
-* Spinner shown during pull-to-refresh
-
-### Error
-
-* Friendly error message
-* Retry button calls refetch
-
----
-
-## Design Decisions
-
-* **TanStack Query** for predictable cache & refetch behavior
-* **MSW** instead of real backend for reliability
-* **Axios** for clean request handling
-* **Tailwind** for layout & spacing
-* **Ant Design** for polished UI components
-
----
-
 ## Getting Started
 
 ### 1. Install dependencies
@@ -174,6 +50,111 @@ curl "http://localhost:5173/api/feed?page=1"
 ```
 
 ---
+
+
+## Tech Stack
+
+| Category        | Tech                            |
+| --------------- | ------------------------------- |
+| Framework       | React 19 + TypeScript           |
+| Styling         | Tailwind CSS + Ant Design       |
+| Data Fetching   | TanStack Query (Infinite Query) |
+| Mock API        | MSW (Mock Service Worker)       |
+| HTTP Client     | Axios                           |
+| Build Tool      | Vite                            |
+| Package Manager | pnpm                            |
+| Node            | v22                             |
+
+---
+
+## Project Structure
+
+```
+feed-reader/
+├─ src/
+│  ├─ components/
+│  │  ├─ FeedList.tsx
+│  │  ├─ FeedItem.tsx
+│  │  ├─ PullToRefresh.tsx
+│  │  └─ SkeletonLoading/
+│  ├─ hooks/
+│  │  └─ useFeed.ts
+│  ├─ mocks/
+│  │  ├─ handlers.ts
+│  │  ├─ browser.ts
+│  │  └─ mockFeedData.ts
+│  ├─ App.tsx
+│  ├─ main.tsx
+│  └─ index.css
+└─ README.md
+```
+
+---
+
+## Trade-off Analysis
+Prioritized
+
+Robust Mock API (MSW)
+Simulates real HTTP requests to ensure stability during development and review.
+
+TanStack Query (useInfiniteQuery)
+Handles caching, pagination, loading, refetching, and error states cleanly.
+
+Infinite Scroll Feed UX
+Provides a modern social-feed-like experience.
+
+Skeleton Loading UI
+Improves perceived performance and avoids layout shifts.
+
+Pull-to-Refresh Interaction
+Mobile-first UX with desktop support.
+
+Intentionally Left Out
+
+Real backend / database
+
+Authentication & authorization
+
+Persistent likes or user state
+
+Accessibility polishing (ARIA, keyboard navigation)
+
+End-to-end tests
+
+---
+
+## Future Scope (With 2 More Hours)
+
+If more time were available, the following improvements would be made:
+
+Add optimistic updates for likes with rollback support
+
+Improve error recovery UX (retry banners, empty states)
+
+Add unit tests for hooks and components
+
+Refactor feed rendering to reduce derived state
+
+Add virtualized lists for better performance on large feeds
+
+Improve accessibility (ARIA roles, keyboard navigation)
+
+Add follower feature with MSW mocking data
+
+Add tab for separate feed between follower and suggest
+
+---
+
+## AI Usage (Optional)
+
+AI tools were used to:
+
+Help debug React Query and MSW integration issues
+
+Generate boilerplate for mock handlers and hooks
+
+Refine UX patterns such as skeleton loading and pull-to-refresh logic
+
 
 
 ## Author
